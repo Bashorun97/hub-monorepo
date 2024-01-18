@@ -35,7 +35,7 @@ message MessageData {
     // SignerRemoveBody signer_remove_body = 13; // Deprecated
     LinkBody link_body = 14;
     UserNameProof username_proof_body = 15;
-    SocialDataBody social_data_body = 16;
+    MediaDataBody media_data_body = 16;
   } // Properties specific to the MessageType
 }
 
@@ -68,7 +68,7 @@ enum MessageType {
 //  MESSAGE_TYPE_SIGNER_REMOVE = 10; // Remove an Ed25519 key pair that signs messages for a user
   MESSAGE_TYPE_USER_DATA_ADD = 11; // Add metadata about a user
   MESSAGE_TYPE_USERNAME_PROOF = 12; // Add or replace a username proof
-  MESSAGE_TYPE_SOCIAL_DATA_ADD = 13; // Add new social data
+  MESSAGE_TYPE_MEDIA_DATA_ADD = 13; // Add new media data
 }
 
 /** Farcaster network the message is intended for */
@@ -79,31 +79,31 @@ enum FarcasterNetwork {
   FARCASTER_NETWORK_DEVNET = 3; // Private test network
 }
 
-/** Adds social data about a user */
-message SocialDataBody {
-  SocialDataType type = 1;
+/** Adds media platform about a user */
+message MediaDataBody {
+  MediaDataType type = 1;
   string email_address = 2;
-  SocialDataActivityType activity = 3; // Type of activity
+  MediaDataActivityType activity = 3; // Type of activity
   string metadata = 4;
   oneof user {
     uint64 user_fid = 5; // Farcaster ID of user
   }
-  uint64 sid = 6; // Social data ID
-  string title = 7; // Social data title
+  uint64 sid = 6; // Media data ID
+  string title = 7; // Media data title
   uint64 date = 8; // Unix timestamp of activity
 }
 
-/** Type of SocialDatat */
-enum SocialDataType {
-  SOCIAL_DATA_TYPE_NONE = 0;
-  SOCIAL_DATA_TYPE_NETFLIX = 1;
-  SOCIAL_DATA_TYPE_PLAYSTATION = 2;
+/** Type of Media platforms */
+enum MediaDataType {
+  MEDIA_DATA_TYPE_NONE = 0;
+  MEDIA_DATA_TYPE_NETFLIX = 1;
+  MEDIA_DATA_TYPE_PLAYSTATION = 2;
 }
 
-enum SocialDataActivityType {
-  SOCIAL_DATA_WATCH = 0;
-  SOCIAL_DATA_PLAY = 1;
-  SOCIAL_DATA_FAVORITE = 2;
+enum MediaDataActivityType {
+  MEDIA_DATA_WATCH = 0;
+  MEDIA_DATA_PLAY = 1;
+  MEDIA_DATA_FAVORITE = 2;
 }
 
 /** Adds metadata about a user */

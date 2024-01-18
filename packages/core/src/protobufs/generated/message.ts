@@ -99,8 +99,8 @@ export enum MessageType {
   USER_DATA_ADD = 11,
   /** USERNAME_PROOF - Add or replace a username proof */
   USERNAME_PROOF = 12,
-  /** SOCIAL_DATA_ADD - Add new social data */
-  SOCIAL_DATA_ADD = 13,
+  /** MEDIA_DATA_ADD - Add new media data */
+  MEDIA_DATA_ADD = 13,
 }
 
 export function messageTypeFromJSON(object: any): MessageType {
@@ -139,8 +139,8 @@ export function messageTypeFromJSON(object: any): MessageType {
     case "MESSAGE_TYPE_USERNAME_PROOF":
       return MessageType.USERNAME_PROOF;
     case 13:
-    case "MESSAGE_TYPE_SOCIAL_DATA_ADD":
-      return MessageType.SOCIAL_DATA_ADD;
+    case "MESSAGE_TYPE_MEDIA_DATA_ADD":
+      return MessageType.MEDIA_DATA_ADD;
     default:
       throw new tsProtoGlobalThis.Error("Unrecognized enum value " + object + " for enum MessageType");
   }
@@ -170,8 +170,8 @@ export function messageTypeToJSON(object: MessageType): string {
       return "MESSAGE_TYPE_USER_DATA_ADD";
     case MessageType.USERNAME_PROOF:
       return "MESSAGE_TYPE_USERNAME_PROOF";
-    case MessageType.SOCIAL_DATA_ADD:
-      return "MESSAGE_TYPE_SOCIAL_DATA_ADD";
+    case MessageType.MEDIA_DATA_ADD:
+      return "MESSAGE_TYPE_MEDIA_DATA_ADD";
     default:
       throw new tsProtoGlobalThis.Error("Unrecognized enum value " + object + " for enum MessageType");
   }
@@ -222,74 +222,74 @@ export function farcasterNetworkToJSON(object: FarcasterNetwork): string {
   }
 }
 
-/** Type of SocialDatat */
-export enum SocialDataType {
+/** Type of Media platforms */
+export enum MediaDataType {
   NONE = 0,
   NETFLIX = 1,
   PLAYSTATION = 2,
 }
 
-export function socialDataTypeFromJSON(object: any): SocialDataType {
+export function mediaDataTypeFromJSON(object: any): MediaDataType {
   switch (object) {
     case 0:
-    case "SOCIAL_DATA_TYPE_NONE":
-      return SocialDataType.NONE;
+    case "MEDIA_DATA_TYPE_NONE":
+      return MediaDataType.NONE;
     case 1:
-    case "SOCIAL_DATA_TYPE_NETFLIX":
-      return SocialDataType.NETFLIX;
+    case "MEDIA_DATA_TYPE_NETFLIX":
+      return MediaDataType.NETFLIX;
     case 2:
-    case "SOCIAL_DATA_TYPE_PLAYSTATION":
-      return SocialDataType.PLAYSTATION;
+    case "MEDIA_DATA_TYPE_PLAYSTATION":
+      return MediaDataType.PLAYSTATION;
     default:
-      throw new tsProtoGlobalThis.Error("Unrecognized enum value " + object + " for enum SocialDataType");
+      throw new tsProtoGlobalThis.Error("Unrecognized enum value " + object + " for enum MediaDataType");
   }
 }
 
-export function socialDataTypeToJSON(object: SocialDataType): string {
+export function mediaDataTypeToJSON(object: MediaDataType): string {
   switch (object) {
-    case SocialDataType.NONE:
-      return "SOCIAL_DATA_TYPE_NONE";
-    case SocialDataType.NETFLIX:
-      return "SOCIAL_DATA_TYPE_NETFLIX";
-    case SocialDataType.PLAYSTATION:
-      return "SOCIAL_DATA_TYPE_PLAYSTATION";
+    case MediaDataType.NONE:
+      return "MEDIA_DATA_TYPE_NONE";
+    case MediaDataType.NETFLIX:
+      return "MEDIA_DATA_TYPE_NETFLIX";
+    case MediaDataType.PLAYSTATION:
+      return "MEDIA_DATA_TYPE_PLAYSTATION";
     default:
-      throw new tsProtoGlobalThis.Error("Unrecognized enum value " + object + " for enum SocialDataType");
+      throw new tsProtoGlobalThis.Error("Unrecognized enum value " + object + " for enum MediaDataType");
   }
 }
 
-export enum SocialDataActivityType {
-  SOCIAL_DATA_WATCH = 0,
-  SOCIAL_DATA_PLAY = 1,
-  SOCIAL_DATA_FAVORITE = 2,
+export enum MediaDataActivityType {
+  MEDIA_DATA_WATCH = 0,
+  MEDIA_DATA_PLAY = 1,
+  MEDIA_DATA_FAVORITE = 2,
 }
 
-export function socialDataActivityTypeFromJSON(object: any): SocialDataActivityType {
+export function mediaDataActivityTypeFromJSON(object: any): MediaDataActivityType {
   switch (object) {
     case 0:
-    case "SOCIAL_DATA_WATCH":
-      return SocialDataActivityType.SOCIAL_DATA_WATCH;
+    case "MEDIA_DATA_WATCH":
+      return MediaDataActivityType.MEDIA_DATA_WATCH;
     case 1:
-    case "SOCIAL_DATA_PLAY":
-      return SocialDataActivityType.SOCIAL_DATA_PLAY;
+    case "MEDIA_DATA_PLAY":
+      return MediaDataActivityType.MEDIA_DATA_PLAY;
     case 2:
-    case "SOCIAL_DATA_FAVORITE":
-      return SocialDataActivityType.SOCIAL_DATA_FAVORITE;
+    case "MEDIA_DATA_FAVORITE":
+      return MediaDataActivityType.MEDIA_DATA_FAVORITE;
     default:
-      throw new tsProtoGlobalThis.Error("Unrecognized enum value " + object + " for enum SocialDataActivityType");
+      throw new tsProtoGlobalThis.Error("Unrecognized enum value " + object + " for enum MediaDataActivityType");
   }
 }
 
-export function socialDataActivityTypeToJSON(object: SocialDataActivityType): string {
+export function mediaDataActivityTypeToJSON(object: MediaDataActivityType): string {
   switch (object) {
-    case SocialDataActivityType.SOCIAL_DATA_WATCH:
-      return "SOCIAL_DATA_WATCH";
-    case SocialDataActivityType.SOCIAL_DATA_PLAY:
-      return "SOCIAL_DATA_PLAY";
-    case SocialDataActivityType.SOCIAL_DATA_FAVORITE:
-      return "SOCIAL_DATA_FAVORITE";
+    case MediaDataActivityType.MEDIA_DATA_WATCH:
+      return "MEDIA_DATA_WATCH";
+    case MediaDataActivityType.MEDIA_DATA_PLAY:
+      return "MEDIA_DATA_PLAY";
+    case MediaDataActivityType.MEDIA_DATA_FAVORITE:
+      return "MEDIA_DATA_FAVORITE";
     default:
-      throw new tsProtoGlobalThis.Error("Unrecognized enum value " + object + " for enum SocialDataActivityType");
+      throw new tsProtoGlobalThis.Error("Unrecognized enum value " + object + " for enum MediaDataActivityType");
   }
 }
 
@@ -440,23 +440,23 @@ export interface MessageData {
   /** SignerRemoveBody signer_remove_body = 13; // Deprecated */
   linkBody?: LinkBody | undefined;
   usernameProofBody?: UserNameProof | undefined;
-  socialDataBody?: SocialDataBody | undefined;
+  mediaDataBody?: MediaDataBody | undefined;
 }
 
-/** Adds social data about a user */
-export interface SocialDataBody {
-  type: SocialDataType;
+/** Adds media platform about a user */
+export interface MediaDataBody {
+  type: MediaDataType;
   emailAddress: string;
   /** Type of activity */
-  activity: SocialDataActivityType;
+  activity: MediaDataActivityType;
   metadata: string;
   /** Farcaster ID of user */
   userFid?:
     | number
     | undefined;
-  /** Social data ID */
+  /** Media data ID */
   sid: number;
-  /** Social data title */
+  /** Media data title */
   title: string;
   /** Unix timestamp of activity */
   date: number;
@@ -719,7 +719,7 @@ function createBaseMessageData(): MessageData {
     userDataBody: undefined,
     linkBody: undefined,
     usernameProofBody: undefined,
-    socialDataBody: undefined,
+    mediaDataBody: undefined,
   };
 }
 
@@ -761,8 +761,8 @@ export const MessageData = {
     if (message.usernameProofBody !== undefined) {
       UserNameProof.encode(message.usernameProofBody, writer.uint32(122).fork()).ldelim();
     }
-    if (message.socialDataBody !== undefined) {
-      SocialDataBody.encode(message.socialDataBody, writer.uint32(130).fork()).ldelim();
+    if (message.mediaDataBody !== undefined) {
+      MediaDataBody.encode(message.mediaDataBody, writer.uint32(130).fork()).ldelim();
     }
     return writer;
   },
@@ -863,7 +863,7 @@ export const MessageData = {
             break;
           }
 
-          message.socialDataBody = SocialDataBody.decode(reader, reader.uint32());
+          message.mediaDataBody = MediaDataBody.decode(reader, reader.uint32());
           continue;
       }
       if ((tag & 7) == 4 || tag == 0) {
@@ -892,7 +892,7 @@ export const MessageData = {
       userDataBody: isSet(object.userDataBody) ? UserDataBody.fromJSON(object.userDataBody) : undefined,
       linkBody: isSet(object.linkBody) ? LinkBody.fromJSON(object.linkBody) : undefined,
       usernameProofBody: isSet(object.usernameProofBody) ? UserNameProof.fromJSON(object.usernameProofBody) : undefined,
-      socialDataBody: isSet(object.socialDataBody) ? SocialDataBody.fromJSON(object.socialDataBody) : undefined,
+      mediaDataBody: isSet(object.mediaDataBody) ? MediaDataBody.fromJSON(object.mediaDataBody) : undefined,
     };
   },
 
@@ -920,8 +920,8 @@ export const MessageData = {
     message.linkBody !== undefined && (obj.linkBody = message.linkBody ? LinkBody.toJSON(message.linkBody) : undefined);
     message.usernameProofBody !== undefined &&
       (obj.usernameProofBody = message.usernameProofBody ? UserNameProof.toJSON(message.usernameProofBody) : undefined);
-    message.socialDataBody !== undefined &&
-      (obj.socialDataBody = message.socialDataBody ? SocialDataBody.toJSON(message.socialDataBody) : undefined);
+    message.mediaDataBody !== undefined &&
+      (obj.mediaDataBody = message.mediaDataBody ? MediaDataBody.toJSON(message.mediaDataBody) : undefined);
     return obj;
   },
 
@@ -961,19 +961,19 @@ export const MessageData = {
     message.usernameProofBody = (object.usernameProofBody !== undefined && object.usernameProofBody !== null)
       ? UserNameProof.fromPartial(object.usernameProofBody)
       : undefined;
-    message.socialDataBody = (object.socialDataBody !== undefined && object.socialDataBody !== null)
-      ? SocialDataBody.fromPartial(object.socialDataBody)
+    message.mediaDataBody = (object.mediaDataBody !== undefined && object.mediaDataBody !== null)
+      ? MediaDataBody.fromPartial(object.mediaDataBody)
       : undefined;
     return message;
   },
 };
 
-function createBaseSocialDataBody(): SocialDataBody {
+function createBaseMediaDataBody(): MediaDataBody {
   return { type: 0, emailAddress: "", activity: 0, metadata: "", userFid: undefined, sid: 0, title: "", date: 0 };
 }
 
-export const SocialDataBody = {
-  encode(message: SocialDataBody, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+export const MediaDataBody = {
+  encode(message: MediaDataBody, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.type !== 0) {
       writer.uint32(8).int32(message.type);
     }
@@ -1001,10 +1001,10 @@ export const SocialDataBody = {
     return writer;
   },
 
-  decode(input: _m0.Reader | Uint8Array, length?: number): SocialDataBody {
+  decode(input: _m0.Reader | Uint8Array, length?: number): MediaDataBody {
     const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseSocialDataBody();
+    const message = createBaseMediaDataBody();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1073,11 +1073,11 @@ export const SocialDataBody = {
     return message;
   },
 
-  fromJSON(object: any): SocialDataBody {
+  fromJSON(object: any): MediaDataBody {
     return {
-      type: isSet(object.type) ? socialDataTypeFromJSON(object.type) : 0,
+      type: isSet(object.type) ? mediaDataTypeFromJSON(object.type) : 0,
       emailAddress: isSet(object.emailAddress) ? String(object.emailAddress) : "",
-      activity: isSet(object.activity) ? socialDataActivityTypeFromJSON(object.activity) : 0,
+      activity: isSet(object.activity) ? mediaDataActivityTypeFromJSON(object.activity) : 0,
       metadata: isSet(object.metadata) ? String(object.metadata) : "",
       userFid: isSet(object.userFid) ? Number(object.userFid) : undefined,
       sid: isSet(object.sid) ? Number(object.sid) : 0,
@@ -1086,11 +1086,11 @@ export const SocialDataBody = {
     };
   },
 
-  toJSON(message: SocialDataBody): unknown {
+  toJSON(message: MediaDataBody): unknown {
     const obj: any = {};
-    message.type !== undefined && (obj.type = socialDataTypeToJSON(message.type));
+    message.type !== undefined && (obj.type = mediaDataTypeToJSON(message.type));
     message.emailAddress !== undefined && (obj.emailAddress = message.emailAddress);
-    message.activity !== undefined && (obj.activity = socialDataActivityTypeToJSON(message.activity));
+    message.activity !== undefined && (obj.activity = mediaDataActivityTypeToJSON(message.activity));
     message.metadata !== undefined && (obj.metadata = message.metadata);
     message.userFid !== undefined && (obj.userFid = Math.round(message.userFid));
     message.sid !== undefined && (obj.sid = Math.round(message.sid));
@@ -1099,12 +1099,12 @@ export const SocialDataBody = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<SocialDataBody>, I>>(base?: I): SocialDataBody {
-    return SocialDataBody.fromPartial(base ?? {});
+  create<I extends Exact<DeepPartial<MediaDataBody>, I>>(base?: I): MediaDataBody {
+    return MediaDataBody.fromPartial(base ?? {});
   },
 
-  fromPartial<I extends Exact<DeepPartial<SocialDataBody>, I>>(object: I): SocialDataBody {
-    const message = createBaseSocialDataBody();
+  fromPartial<I extends Exact<DeepPartial<MediaDataBody>, I>>(object: I): MediaDataBody {
+    const message = createBaseMediaDataBody();
     message.type = object.type ?? 0;
     message.emailAddress = object.emailAddress ?? "";
     message.activity = object.activity ?? 0;
