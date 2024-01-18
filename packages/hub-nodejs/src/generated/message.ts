@@ -258,6 +258,41 @@ export function socialDataTypeToJSON(object: SocialDataType): string {
   }
 }
 
+export enum SocialDataActivityType {
+  SOCIAL_DATA_WATCH = 0,
+  SOCIAL_DATA_PLAY = 1,
+  SOCIAL_DATA_FAVORITE = 2,
+}
+
+export function socialDataActivityTypeFromJSON(object: any): SocialDataActivityType {
+  switch (object) {
+    case 0:
+    case "SOCIAL_DATA_WATCH":
+      return SocialDataActivityType.SOCIAL_DATA_WATCH;
+    case 1:
+    case "SOCIAL_DATA_PLAY":
+      return SocialDataActivityType.SOCIAL_DATA_PLAY;
+    case 2:
+    case "SOCIAL_DATA_FAVORITE":
+      return SocialDataActivityType.SOCIAL_DATA_FAVORITE;
+    default:
+      throw new tsProtoGlobalThis.Error("Unrecognized enum value " + object + " for enum SocialDataActivityType");
+  }
+}
+
+export function socialDataActivityTypeToJSON(object: SocialDataActivityType): string {
+  switch (object) {
+    case SocialDataActivityType.SOCIAL_DATA_WATCH:
+      return "SOCIAL_DATA_WATCH";
+    case SocialDataActivityType.SOCIAL_DATA_PLAY:
+      return "SOCIAL_DATA_PLAY";
+    case SocialDataActivityType.SOCIAL_DATA_FAVORITE:
+      return "SOCIAL_DATA_FAVORITE";
+    default:
+      throw new tsProtoGlobalThis.Error("Unrecognized enum value " + object + " for enum SocialDataActivityType");
+  }
+}
+
 /** Type of UserData */
 export enum UserDataType {
   NONE = 0,
@@ -412,6 +447,19 @@ export interface MessageData {
 export interface SocialDataBody {
   type: SocialDataType;
   emailAddress: string;
+  /** Type of activity */
+  activity: SocialDataActivityType;
+  metadata: string;
+  /** Farcaster ID of user */
+  userFid?:
+    | number
+    | undefined;
+  /** Social data ID */
+  sid: number;
+  /** Social data title */
+  title: string;
+  /** Unix timestamp of activity */
+  date: number;
 }
 
 /** Adds metadata about a user */
@@ -921,7 +969,7 @@ export const MessageData = {
 };
 
 function createBaseSocialDataBody(): SocialDataBody {
-  return { type: 0, emailAddress: "" };
+  return { type: 0, emailAddress: "", activity: 0, metadata: "", userFid: undefined, sid: 0, title: "", date: 0 };
 }
 
 export const SocialDataBody = {
@@ -931,6 +979,24 @@ export const SocialDataBody = {
     }
     if (message.emailAddress !== "") {
       writer.uint32(18).string(message.emailAddress);
+    }
+    if (message.activity !== 0) {
+      writer.uint32(24).int32(message.activity);
+    }
+    if (message.metadata !== "") {
+      writer.uint32(34).string(message.metadata);
+    }
+    if (message.userFid !== undefined) {
+      writer.uint32(40).uint64(message.userFid);
+    }
+    if (message.sid !== 0) {
+      writer.uint32(48).uint64(message.sid);
+    }
+    if (message.title !== "") {
+      writer.uint32(58).string(message.title);
+    }
+    if (message.date !== 0) {
+      writer.uint32(64).uint64(message.date);
     }
     return writer;
   },
@@ -956,6 +1022,48 @@ export const SocialDataBody = {
 
           message.emailAddress = reader.string();
           continue;
+        case 3:
+          if (tag != 24) {
+            break;
+          }
+
+          message.activity = reader.int32() as any;
+          continue;
+        case 4:
+          if (tag != 34) {
+            break;
+          }
+
+          message.metadata = reader.string();
+          continue;
+        case 5:
+          if (tag != 40) {
+            break;
+          }
+
+          message.userFid = longToNumber(reader.uint64() as Long);
+          continue;
+        case 6:
+          if (tag != 48) {
+            break;
+          }
+
+          message.sid = longToNumber(reader.uint64() as Long);
+          continue;
+        case 7:
+          if (tag != 58) {
+            break;
+          }
+
+          message.title = reader.string();
+          continue;
+        case 8:
+          if (tag != 64) {
+            break;
+          }
+
+          message.date = longToNumber(reader.uint64() as Long);
+          continue;
       }
       if ((tag & 7) == 4 || tag == 0) {
         break;
@@ -969,6 +1077,12 @@ export const SocialDataBody = {
     return {
       type: isSet(object.type) ? socialDataTypeFromJSON(object.type) : 0,
       emailAddress: isSet(object.emailAddress) ? String(object.emailAddress) : "",
+      activity: isSet(object.activity) ? socialDataActivityTypeFromJSON(object.activity) : 0,
+      metadata: isSet(object.metadata) ? String(object.metadata) : "",
+      userFid: isSet(object.userFid) ? Number(object.userFid) : undefined,
+      sid: isSet(object.sid) ? Number(object.sid) : 0,
+      title: isSet(object.title) ? String(object.title) : "",
+      date: isSet(object.date) ? Number(object.date) : 0,
     };
   },
 
@@ -976,6 +1090,12 @@ export const SocialDataBody = {
     const obj: any = {};
     message.type !== undefined && (obj.type = socialDataTypeToJSON(message.type));
     message.emailAddress !== undefined && (obj.emailAddress = message.emailAddress);
+    message.activity !== undefined && (obj.activity = socialDataActivityTypeToJSON(message.activity));
+    message.metadata !== undefined && (obj.metadata = message.metadata);
+    message.userFid !== undefined && (obj.userFid = Math.round(message.userFid));
+    message.sid !== undefined && (obj.sid = Math.round(message.sid));
+    message.title !== undefined && (obj.title = message.title);
+    message.date !== undefined && (obj.date = Math.round(message.date));
     return obj;
   },
 
@@ -987,6 +1107,12 @@ export const SocialDataBody = {
     const message = createBaseSocialDataBody();
     message.type = object.type ?? 0;
     message.emailAddress = object.emailAddress ?? "";
+    message.activity = object.activity ?? 0;
+    message.metadata = object.metadata ?? "";
+    message.userFid = object.userFid ?? undefined;
+    message.sid = object.sid ?? 0;
+    message.title = object.title ?? "";
+    message.date = object.date ?? 0;
     return message;
   },
 };

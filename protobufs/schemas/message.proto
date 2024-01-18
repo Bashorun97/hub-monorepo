@@ -83,6 +83,14 @@ enum FarcasterNetwork {
 message SocialDataBody {
   SocialDataType type = 1;
   string email_address = 2;
+  SocialDataActivityType activity = 3; // Type of activity
+  string metadata = 4;
+  oneof user {
+    uint64 user_fid = 5; // Farcaster ID of user
+  }
+  uint64 sid = 6; // Social data ID
+  string title = 7; // Social data title
+  uint64 date = 8; // Unix timestamp of activity
 }
 
 /** Type of SocialDatat */
@@ -90,6 +98,12 @@ enum SocialDataType {
   SOCIAL_DATA_TYPE_NONE = 0;
   SOCIAL_DATA_TYPE_NETFLIX = 1;
   SOCIAL_DATA_TYPE_PLAYSTATION = 2;
+}
+
+enum SocialDataActivityType {
+  SOCIAL_DATA_WATCH = 0;
+  SOCIAL_DATA_PLAY = 1;
+  SOCIAL_DATA_FAVORITE = 2;
 }
 
 /** Adds metadata about a user */
