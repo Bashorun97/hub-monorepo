@@ -6,6 +6,26 @@ import { OnChainEvent } from "./generated/onchain_event";
 
 /** Message types */
 
+export type MediaAddData = protobufs.MessageData & {
+  type: protobufs.MessageType.MEDIA_DATA_ADD;
+  mediaDataAddBody: protobufs.MediaDataAddBody;
+};
+
+export type MediaRemoveData = protobufs.MessageData & {
+  type: protobufs.MessageType.MEDIA_DATA_REMOVE;
+  mediaRemoveBody: protobufs.MediaDataRemoveBody;
+};
+
+export type MediaAddMessage = protobufs.Message & {
+  data: MediaAddData;
+  signatureScheme: protobufs.SignatureScheme.ED25519;
+};
+
+export type MediaRemoveMessage = protobufs.Message & {
+  type: MediaAddData;
+  signatureScheme: protobufs.SignatureScheme.ED25519;
+};
+
 export type CastAddData = protobufs.MessageData & {
   type: protobufs.MessageType.CAST_ADD;
   castAddBody: protobufs.CastAddBody;

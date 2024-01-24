@@ -29,6 +29,30 @@ export const isCastRemoveMessage = (message: protobufs.Message): message is type
   );
 };
 
+export const isMediaAddData = (data: protobufs.MessageData): data is types.MediaAddData => {
+  return data.type === protobufs.MessageType.MEDIA_DATA_ADD && typeof data.mediaDataAddBody !== "undefined";
+};
+
+export const isMediaAddMessage = (message: protobufs.Message): message is types.MediaAddMessage => {
+  return (
+    message.signatureScheme === protobufs.SignatureScheme.ED25519 &&
+    typeof message.data !== "undefined" &&
+    isMediaAddData(message.data)
+  );
+};
+
+export const isMediaRemoveData = (data: protobufs.MessageData): data is types.MediaAddData => {
+  return data.type === protobufs.MessageType.MEDIA_DATA_REMOVE && typeof data.mediaDataRemoveBody !== "undefined";
+};
+
+export const isMediaRemoveMessage = (message: protobufs.Message): message is types.MediaRemoveMessage => {
+  return (
+    message.signatureScheme === protobufs.SignatureScheme.ED25519 &&
+    typeof message.data !== "undefined" &&
+    isMediaRemoveData(message.data)
+  );
+};
+
 export const isLinkAddData = (data: protobufs.MessageData): data is types.LinkAddData => {
   return data.type === protobufs.MessageType.LINK_ADD && typeof data.linkBody !== "undefined";
 };

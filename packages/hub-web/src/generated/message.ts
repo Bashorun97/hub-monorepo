@@ -101,6 +101,8 @@ export enum MessageType {
   USERNAME_PROOF = 12,
   /** MEDIA_DATA_ADD - Add new media data */
   MEDIA_DATA_ADD = 13,
+  /** MEDIA_DATA_REMOVE - Remove a media data for a user */
+  MEDIA_DATA_REMOVE = 14,
 }
 
 export function messageTypeFromJSON(object: any): MessageType {
@@ -141,6 +143,9 @@ export function messageTypeFromJSON(object: any): MessageType {
     case 13:
     case "MESSAGE_TYPE_MEDIA_DATA_ADD":
       return MessageType.MEDIA_DATA_ADD;
+    case 14:
+    case "MESSAGE_TYPE_MEDIA_DATA_REMOVE":
+      return MessageType.MEDIA_DATA_REMOVE;
     default:
       throw new tsProtoGlobalThis.Error("Unrecognized enum value " + object + " for enum MessageType");
   }
@@ -172,6 +177,8 @@ export function messageTypeToJSON(object: MessageType): string {
       return "MESSAGE_TYPE_USERNAME_PROOF";
     case MessageType.MEDIA_DATA_ADD:
       return "MESSAGE_TYPE_MEDIA_DATA_ADD";
+    case MessageType.MEDIA_DATA_REMOVE:
+      return "MESSAGE_TYPE_MEDIA_DATA_REMOVE";
     default:
       throw new tsProtoGlobalThis.Error("Unrecognized enum value " + object + " for enum MessageType");
   }
@@ -440,11 +447,17 @@ export interface MessageData {
   /** SignerRemoveBody signer_remove_body = 13; // Deprecated */
   linkBody?: LinkBody | undefined;
   usernameProofBody?: UserNameProof | undefined;
-  mediaDataBody?: MediaDataBody | undefined;
+  mediaDataAddBody?: MediaDataAddBody | undefined;
+  mediaDataRemoveBody?: MediaDataRemoveBody | undefined;
+}
+
+/** Removes media data owned by a user */
+export interface MediaDataRemoveBody {
+  targetHash: Uint8Array;
 }
 
 /** Adds media platform about a user */
-export interface MediaDataBody {
+export interface MediaDataAddBody {
   type: MediaDataType;
   emailAddress: string;
   /** Type of activity */
@@ -719,7 +732,8 @@ function createBaseMessageData(): MessageData {
     userDataBody: undefined,
     linkBody: undefined,
     usernameProofBody: undefined,
-    mediaDataBody: undefined,
+    mediaDataAddBody: undefined,
+    mediaDataRemoveBody: undefined,
   };
 }
 
@@ -761,8 +775,11 @@ export const MessageData = {
     if (message.usernameProofBody !== undefined) {
       UserNameProof.encode(message.usernameProofBody, writer.uint32(122).fork()).ldelim();
     }
-    if (message.mediaDataBody !== undefined) {
-      MediaDataBody.encode(message.mediaDataBody, writer.uint32(130).fork()).ldelim();
+    if (message.mediaDataAddBody !== undefined) {
+      MediaDataAddBody.encode(message.mediaDataAddBody, writer.uint32(130).fork()).ldelim();
+    }
+    if (message.mediaDataRemoveBody !== undefined) {
+      MediaDataRemoveBody.encode(message.mediaDataRemoveBody, writer.uint32(138).fork()).ldelim();
     }
     return writer;
   },
@@ -863,7 +880,14 @@ export const MessageData = {
             break;
           }
 
-          message.mediaDataBody = MediaDataBody.decode(reader, reader.uint32());
+          message.mediaDataAddBody = MediaDataAddBody.decode(reader, reader.uint32());
+          continue;
+        case 17:
+          if (tag != 138) {
+            break;
+          }
+
+          message.mediaDataRemoveBody = MediaDataRemoveBody.decode(reader, reader.uint32());
           continue;
       }
       if ((tag & 7) == 4 || tag == 0) {
@@ -892,7 +916,10 @@ export const MessageData = {
       userDataBody: isSet(object.userDataBody) ? UserDataBody.fromJSON(object.userDataBody) : undefined,
       linkBody: isSet(object.linkBody) ? LinkBody.fromJSON(object.linkBody) : undefined,
       usernameProofBody: isSet(object.usernameProofBody) ? UserNameProof.fromJSON(object.usernameProofBody) : undefined,
-      mediaDataBody: isSet(object.mediaDataBody) ? MediaDataBody.fromJSON(object.mediaDataBody) : undefined,
+      mediaDataAddBody: isSet(object.mediaDataAddBody) ? MediaDataAddBody.fromJSON(object.mediaDataAddBody) : undefined,
+      mediaDataRemoveBody: isSet(object.mediaDataRemoveBody)
+        ? MediaDataRemoveBody.fromJSON(object.mediaDataRemoveBody)
+        : undefined,
     };
   },
 
@@ -920,8 +947,11 @@ export const MessageData = {
     message.linkBody !== undefined && (obj.linkBody = message.linkBody ? LinkBody.toJSON(message.linkBody) : undefined);
     message.usernameProofBody !== undefined &&
       (obj.usernameProofBody = message.usernameProofBody ? UserNameProof.toJSON(message.usernameProofBody) : undefined);
-    message.mediaDataBody !== undefined &&
-      (obj.mediaDataBody = message.mediaDataBody ? MediaDataBody.toJSON(message.mediaDataBody) : undefined);
+    message.mediaDataAddBody !== undefined &&
+      (obj.mediaDataAddBody = message.mediaDataAddBody ? MediaDataAddBody.toJSON(message.mediaDataAddBody) : undefined);
+    message.mediaDataRemoveBody !== undefined && (obj.mediaDataRemoveBody = message.mediaDataRemoveBody
+      ? MediaDataRemoveBody.toJSON(message.mediaDataRemoveBody)
+      : undefined);
     return obj;
   },
 
@@ -961,19 +991,79 @@ export const MessageData = {
     message.usernameProofBody = (object.usernameProofBody !== undefined && object.usernameProofBody !== null)
       ? UserNameProof.fromPartial(object.usernameProofBody)
       : undefined;
-    message.mediaDataBody = (object.mediaDataBody !== undefined && object.mediaDataBody !== null)
-      ? MediaDataBody.fromPartial(object.mediaDataBody)
+    message.mediaDataAddBody = (object.mediaDataAddBody !== undefined && object.mediaDataAddBody !== null)
+      ? MediaDataAddBody.fromPartial(object.mediaDataAddBody)
+      : undefined;
+    message.mediaDataRemoveBody = (object.mediaDataRemoveBody !== undefined && object.mediaDataRemoveBody !== null)
+      ? MediaDataRemoveBody.fromPartial(object.mediaDataRemoveBody)
       : undefined;
     return message;
   },
 };
 
-function createBaseMediaDataBody(): MediaDataBody {
+function createBaseMediaDataRemoveBody(): MediaDataRemoveBody {
+  return { targetHash: new Uint8Array() };
+}
+
+export const MediaDataRemoveBody = {
+  encode(message: MediaDataRemoveBody, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.targetHash.length !== 0) {
+      writer.uint32(10).bytes(message.targetHash);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): MediaDataRemoveBody {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMediaDataRemoveBody();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag != 10) {
+            break;
+          }
+
+          message.targetHash = reader.bytes();
+          continue;
+      }
+      if ((tag & 7) == 4 || tag == 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): MediaDataRemoveBody {
+    return { targetHash: isSet(object.targetHash) ? bytesFromBase64(object.targetHash) : new Uint8Array() };
+  },
+
+  toJSON(message: MediaDataRemoveBody): unknown {
+    const obj: any = {};
+    message.targetHash !== undefined &&
+      (obj.targetHash = base64FromBytes(message.targetHash !== undefined ? message.targetHash : new Uint8Array()));
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<MediaDataRemoveBody>, I>>(base?: I): MediaDataRemoveBody {
+    return MediaDataRemoveBody.fromPartial(base ?? {});
+  },
+
+  fromPartial<I extends Exact<DeepPartial<MediaDataRemoveBody>, I>>(object: I): MediaDataRemoveBody {
+    const message = createBaseMediaDataRemoveBody();
+    message.targetHash = object.targetHash ?? new Uint8Array();
+    return message;
+  },
+};
+
+function createBaseMediaDataAddBody(): MediaDataAddBody {
   return { type: 0, emailAddress: "", activity: 0, metadata: "", userFid: undefined, sid: 0, title: "", date: 0 };
 }
 
-export const MediaDataBody = {
-  encode(message: MediaDataBody, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+export const MediaDataAddBody = {
+  encode(message: MediaDataAddBody, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.type !== 0) {
       writer.uint32(8).int32(message.type);
     }
@@ -1001,10 +1091,10 @@ export const MediaDataBody = {
     return writer;
   },
 
-  decode(input: _m0.Reader | Uint8Array, length?: number): MediaDataBody {
+  decode(input: _m0.Reader | Uint8Array, length?: number): MediaDataAddBody {
     const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseMediaDataBody();
+    const message = createBaseMediaDataAddBody();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1073,7 +1163,7 @@ export const MediaDataBody = {
     return message;
   },
 
-  fromJSON(object: any): MediaDataBody {
+  fromJSON(object: any): MediaDataAddBody {
     return {
       type: isSet(object.type) ? mediaDataTypeFromJSON(object.type) : 0,
       emailAddress: isSet(object.emailAddress) ? String(object.emailAddress) : "",
@@ -1086,7 +1176,7 @@ export const MediaDataBody = {
     };
   },
 
-  toJSON(message: MediaDataBody): unknown {
+  toJSON(message: MediaDataAddBody): unknown {
     const obj: any = {};
     message.type !== undefined && (obj.type = mediaDataTypeToJSON(message.type));
     message.emailAddress !== undefined && (obj.emailAddress = message.emailAddress);
@@ -1099,12 +1189,12 @@ export const MediaDataBody = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MediaDataBody>, I>>(base?: I): MediaDataBody {
-    return MediaDataBody.fromPartial(base ?? {});
+  create<I extends Exact<DeepPartial<MediaDataAddBody>, I>>(base?: I): MediaDataAddBody {
+    return MediaDataAddBody.fromPartial(base ?? {});
   },
 
-  fromPartial<I extends Exact<DeepPartial<MediaDataBody>, I>>(object: I): MediaDataBody {
-    const message = createBaseMediaDataBody();
+  fromPartial<I extends Exact<DeepPartial<MediaDataAddBody>, I>>(object: I): MediaDataAddBody {
+    const message = createBaseMediaDataAddBody();
     message.type = object.type ?? 0;
     message.emailAddress = object.emailAddress ?? "";
     message.activity = object.activity ?? 0;

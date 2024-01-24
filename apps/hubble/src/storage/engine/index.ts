@@ -5,6 +5,7 @@ import {
   CastAddMessage,
   CastId,
   CastRemoveMessage,
+  MediaAddMessage,
   FarcasterNetwork,
   getStoreLimits,
   hexStringToBytes,
@@ -50,6 +51,7 @@ import { TSHASH_LENGTH, UserPostfix } from "../db/types.js";
 import CastStore from "../stores/castStore.js";
 import LinkStore from "../stores/linkStore.js";
 import ReactionStore from "../stores/reactionStore.js";
+import MediaDataStore from "../stores/mediaDataStore.js"
 import StoreEventHandler from "../stores/storeEventHandler.js";
 import { DEFAULT_PAGE_SIZE, MessagesPage, PageOptions } from "../stores/types.js";
 import UserDataStore from "../stores/userDataStore.js";
@@ -91,6 +93,7 @@ class Engine extends TypedEmitter<EngineEvents> {
   private _verificationStore: VerificationStore;
   private _onchainEventsStore: OnChainEventStore;
   private _usernameProofStore: UsernameProofStore;
+  private _mediaDataStore: MediaDataStore;
 
   private _validationWorker: Worker | undefined;
 
@@ -124,6 +127,7 @@ class Engine extends TypedEmitter<EngineEvents> {
     this._verificationStore = new VerificationStore(db, this.eventHandler);
     this._onchainEventsStore = new OnChainEventStore(db, this.eventHandler);
     this._usernameProofStore = new UsernameProofStore(db, this.eventHandler);
+    this._mediaDataStore = new MediaDataStore(db, this.eventHandler)
 
     // Calculate total storage available per unit of store. Note that OnChainEventStore
     // is not included in this calculation because it is not pruned.
@@ -133,7 +137,8 @@ class Engine extends TypedEmitter<EngineEvents> {
       this._castStore.pruneSizeLimit +
       this._userDataStore.pruneSizeLimit +
       this._verificationStore.pruneSizeLimit +
-      this._usernameProofStore.pruneSizeLimit;
+      this._usernameProofStore.pruneSizeLimit +
+      this._mediaDataStore.pruneSizeLimit;
 
     log.info({ totalPruneSize: this._totalPruneSize }, "total default storage limit size");
 
@@ -268,6 +273,9 @@ class Engine extends TypedEmitter<EngineEvents> {
       }
       case UserPostfix.UsernameProofMessage: {
         return ResultAsync.fromPromise(this._usernameProofStore.merge(message), (e) => e as HubError);
+      }
+      case UserPostfix.MediaDataMessage: {
+        return ResultAsync.fromPromise(this._mediaDataStore.merge(message), (e) => e as HubError);
       }
       default: {
         return err(new HubError("bad_request.validation_failure", "invalid message type"));
@@ -507,6 +515,28 @@ class Engine extends TypedEmitter<EngineEvents> {
   ): HubAsyncResult<MessagesPage<CastAddMessage | CastRemoveMessage>> {
     return ResultAsync.fromPromise(this._castStore.getAllCastMessagesByFid(fid, pageOptions), (e) => e as HubError);
   }
+
+  /* -------------------------------------------------------------------------- */
+  /*                            Media Data Store Methods                          */
+  /* -------------------------------------------------------------------------- */
+
+  async getMediaData(fid: number, hash: Uint8Array): HubAsyncResult<MediaAddMessage> {
+    const validatedFid = validations.validateFid(fid);
+    if (validatedFid.isErr()) {
+      return err(validatedFid.error);
+    }
+    return ResultAsync.fromPromise(this._mediaDataStore.getMediaDataAdd(fid, hash), (e) => e as HubError);
+  }
+
+  async getMediaDataByFid(fid: number, pageOptions: PageOptions = {}): HubAsyncResult<MessagesPage<MediaAddMessage>> {
+    const validatedFid = validations.validateFid(fid);
+    if (validatedFid.isErr()) {
+      return err(validatedFid.error);
+    }
+
+    return ResultAsync.fromPromise(this._mediaDataStore.getMediaDataAddsByFid(fid, pageOptions), (e) => e as HubError);
+  }
+
 
   /* -------------------------------------------------------------------------- */
   /*                            Reaction Store Methods                          */

@@ -1,4 +1,4 @@
-import { bytesIncrement, CastId, HubError, HubResult, Message, MessageData, MessageType } from "@farcaster/hub-nodejs";
+import { bytesIncrement, CastId, MediaDataId, HubError, HubResult, Message, MessageData, MessageType } from "@farcaster/hub-nodejs";
 import { err, ok, Result, ResultAsync } from "neverthrow";
 import RocksDB, { Iterator, Transaction } from "./rocksdb.js";
 import {
@@ -35,6 +35,13 @@ export const makeUserKey = (fid: number): Buffer => {
 export const makeCastIdKey = (castId: CastId): Buffer => {
   return Buffer.concat([makeFidKey(castId.fid), Buffer.from(castId.hash)]);
 };
+
+/**
+ * Generates a key for referencing a MediaDataId. Packed as <fid, hash>.
+ */
+export const makeMediaDataIdKey = (mediaDataId: MediaDataId): Buffer => {
+  return Buffer.concat([makeFidKey(mediaDataId.fid), Buffer.from(mediaDataId.hash)]);
+}
 
 /** <user prefix byte, fid, set index byte, tsHash> */
 export const makeMessagePrimaryKey = (fid: number, set: UserMessagePostfix, tsHash?: Uint8Array): Buffer => {

@@ -252,6 +252,45 @@ const CastAddMessageFactory = Factory.define<protobufs.CastAddMessage, { signer?
   },
 );
 
+const MediaAddBodyFactory = Factory.define<protobufs.MediaDataAddBody>(() => {
+  return protobufs.MediaDataAddBody.create({
+    type: protobufs.MediaDataType.NETFLIX,
+  });
+});
+
+const MediaAddDataFactory = Factory.define<protobufs.MediaAddData>(() => {
+  return MessageDataFactory.build({
+    mediaDataAddBody: MediaAddBodyFactory.build(),
+    type: protobufs.MessageType.MEDIA_DATA_ADD,
+  }) as protobufs.MediaAddData;
+});
+
+const MediaAddMessageFactory = Factory.define<protobufs.MediaAddMessage, { signer?: Ed25519Signer }>(
+  ({ onCreate, transientParams }) => {
+    onCreate((message) => {
+      return MessageFactory.create(message, { transient: transientParams }) as Promise<protobufs.MediaAddMessage>;
+    });
+
+    return MessageFactory.build(
+      { data: MediaAddDataFactory.build(), signatureScheme: protobufs.SignatureScheme.ED25519 },
+      { transient: transientParams },
+    ) as protobufs.MediaAddMessage;
+  },
+);
+
+const MediaDataRemoveBodyFactory = Factory.define<protobufs.MediaDataRemoveBody>(() => {
+  return protobufs.MediaDataRemoveBody.create({
+    targetHash: MessageHashFactory.build(),
+  });
+});
+
+const MediaDataRemoveDataFactory = Factory.define<protobufs.MediaRemoveData>(() => {
+  return MessageDataFactory.build({
+    mediaDataRemoveBody: MediaDataRemoveBodyFactory.build(),
+    type: protobufs.MessageType.MEDIA_DATA_REMOVE,
+  }) as protobufs.MediaRemoveData;
+});
+
 const CastRemoveBodyFactory = Factory.define<protobufs.CastRemoveBody>(() => {
   return protobufs.CastRemoveBody.create({
     targetHash: MessageHashFactory.build(),
@@ -668,6 +707,8 @@ export const Factories = {
   ReactionAddData: ReactionAddDataFactory,
   ReactionAddMessage: ReactionAddMessageFactory,
   ReactionRemoveData: ReactionRemoveDataFactory,
+  MediaAddData: MediaAddDataFactory,
+  MediaRemoveData: MediaDataRemoveDataFactory,
   ReactionRemoveMessage: ReactionRemoveMessageFactory,
   VerificationEthAddressClaim: VerificationEthAddressClaimFactory,
   VerificationAddEthAddressBody: VerificationAddEthAddressBodyFactory,

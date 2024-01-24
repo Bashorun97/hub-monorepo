@@ -75,6 +75,8 @@ export enum RootPrefix {
 
   /* Used to index verifications by address */
   VerificationByAddress = 25,
+
+  MediaData = 26,
 }
 
 /**
@@ -96,6 +98,7 @@ export enum UserPostfix {
   // SignerMessage = 5,
   UserDataMessage = 6,
   UsernameProofMessage = 7,
+  MediaDataMessage = 8,
 
   // Add new message types here
   // NOTE: If you add a new message type, make sure that it is only used to store Message protobufs.
@@ -130,6 +133,9 @@ export enum UserPostfix {
 
   /* UserNameProof add set */
   UserNameProofAdds = 99,
+
+  MediaDataAdds = 100,
+  MediaDataRemoves = 101,
 }
 
 export enum OnChainEventPostfix {
@@ -153,4 +159,5 @@ export type UserMessagePostfix =
   | UserPostfix.VerificationMessage
   | UserPostfix.ReactionMessage
   | UserPostfix.UserDataMessage
-  | UserPostfix.UsernameProofMessage;
+  | UserPostfix.UsernameProofMessage
+  | UserPostfix.MediaDataMessage;
