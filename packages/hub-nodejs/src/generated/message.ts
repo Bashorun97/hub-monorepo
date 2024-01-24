@@ -99,6 +99,10 @@ export enum MessageType {
   USER_DATA_ADD = 11,
   /** USERNAME_PROOF - Add or replace a username proof */
   USERNAME_PROOF = 12,
+  /** MEDIA_DATA_ADD - Add new media data */
+  MEDIA_DATA_ADD = 13,
+  /** MEDIA_DATA_REMOVE - Remove a media data for a user */
+  MEDIA_DATA_REMOVE = 14,
 }
 
 export function messageTypeFromJSON(object: any): MessageType {
@@ -136,6 +140,12 @@ export function messageTypeFromJSON(object: any): MessageType {
     case 12:
     case "MESSAGE_TYPE_USERNAME_PROOF":
       return MessageType.USERNAME_PROOF;
+    case 13:
+    case "MESSAGE_TYPE_MEDIA_DATA_ADD":
+      return MessageType.MEDIA_DATA_ADD;
+    case 14:
+    case "MESSAGE_TYPE_MEDIA_DATA_REMOVE":
+      return MessageType.MEDIA_DATA_REMOVE;
     default:
       throw new tsProtoGlobalThis.Error("Unrecognized enum value " + object + " for enum MessageType");
   }
@@ -165,6 +175,10 @@ export function messageTypeToJSON(object: MessageType): string {
       return "MESSAGE_TYPE_USER_DATA_ADD";
     case MessageType.USERNAME_PROOF:
       return "MESSAGE_TYPE_USERNAME_PROOF";
+    case MessageType.MEDIA_DATA_ADD:
+      return "MESSAGE_TYPE_MEDIA_DATA_ADD";
+    case MessageType.MEDIA_DATA_REMOVE:
+      return "MESSAGE_TYPE_MEDIA_DATA_REMOVE";
     default:
       throw new tsProtoGlobalThis.Error("Unrecognized enum value " + object + " for enum MessageType");
   }
@@ -212,6 +226,77 @@ export function farcasterNetworkToJSON(object: FarcasterNetwork): string {
       return "FARCASTER_NETWORK_DEVNET";
     default:
       throw new tsProtoGlobalThis.Error("Unrecognized enum value " + object + " for enum FarcasterNetwork");
+  }
+}
+
+/** Type of Media platforms */
+export enum MediaDataType {
+  NONE = 0,
+  NETFLIX = 1,
+  PLAYSTATION = 2,
+}
+
+export function mediaDataTypeFromJSON(object: any): MediaDataType {
+  switch (object) {
+    case 0:
+    case "MEDIA_DATA_TYPE_NONE":
+      return MediaDataType.NONE;
+    case 1:
+    case "MEDIA_DATA_TYPE_NETFLIX":
+      return MediaDataType.NETFLIX;
+    case 2:
+    case "MEDIA_DATA_TYPE_PLAYSTATION":
+      return MediaDataType.PLAYSTATION;
+    default:
+      throw new tsProtoGlobalThis.Error("Unrecognized enum value " + object + " for enum MediaDataType");
+  }
+}
+
+export function mediaDataTypeToJSON(object: MediaDataType): string {
+  switch (object) {
+    case MediaDataType.NONE:
+      return "MEDIA_DATA_TYPE_NONE";
+    case MediaDataType.NETFLIX:
+      return "MEDIA_DATA_TYPE_NETFLIX";
+    case MediaDataType.PLAYSTATION:
+      return "MEDIA_DATA_TYPE_PLAYSTATION";
+    default:
+      throw new tsProtoGlobalThis.Error("Unrecognized enum value " + object + " for enum MediaDataType");
+  }
+}
+
+export enum MediaDataActivityType {
+  MEDIA_DATA_WATCH = 0,
+  MEDIA_DATA_PLAY = 1,
+  MEDIA_DATA_FAVORITE = 2,
+}
+
+export function mediaDataActivityTypeFromJSON(object: any): MediaDataActivityType {
+  switch (object) {
+    case 0:
+    case "MEDIA_DATA_WATCH":
+      return MediaDataActivityType.MEDIA_DATA_WATCH;
+    case 1:
+    case "MEDIA_DATA_PLAY":
+      return MediaDataActivityType.MEDIA_DATA_PLAY;
+    case 2:
+    case "MEDIA_DATA_FAVORITE":
+      return MediaDataActivityType.MEDIA_DATA_FAVORITE;
+    default:
+      throw new tsProtoGlobalThis.Error("Unrecognized enum value " + object + " for enum MediaDataActivityType");
+  }
+}
+
+export function mediaDataActivityTypeToJSON(object: MediaDataActivityType): string {
+  switch (object) {
+    case MediaDataActivityType.MEDIA_DATA_WATCH:
+      return "MEDIA_DATA_WATCH";
+    case MediaDataActivityType.MEDIA_DATA_PLAY:
+      return "MEDIA_DATA_PLAY";
+    case MediaDataActivityType.MEDIA_DATA_FAVORITE:
+      return "MEDIA_DATA_FAVORITE";
+    default:
+      throw new tsProtoGlobalThis.Error("Unrecognized enum value " + object + " for enum MediaDataActivityType");
   }
 }
 
@@ -362,6 +447,32 @@ export interface MessageData {
   /** SignerRemoveBody signer_remove_body = 13; // Deprecated */
   linkBody?: LinkBody | undefined;
   usernameProofBody?: UserNameProof | undefined;
+  mediaDataAddBody?: MediaDataAddBody | undefined;
+  mediaDataRemoveBody?: MediaDataRemoveBody | undefined;
+}
+
+/** Removes media data owned by a user */
+export interface MediaDataRemoveBody {
+  targetHash: Uint8Array;
+}
+
+/** Adds media platform about a user */
+export interface MediaDataAddBody {
+  type: MediaDataType;
+  emailAddress: string;
+  /** Type of activity */
+  activity: MediaDataActivityType;
+  metadata: string;
+  /** Farcaster ID of user */
+  userFid?:
+    | number
+    | undefined;
+  /** Media data ID */
+  sid: number;
+  /** Media data title */
+  title: string;
+  /** Unix timestamp of activity */
+  date: number;
 }
 
 /** Adds metadata about a user */
@@ -621,6 +732,8 @@ function createBaseMessageData(): MessageData {
     userDataBody: undefined,
     linkBody: undefined,
     usernameProofBody: undefined,
+    mediaDataAddBody: undefined,
+    mediaDataRemoveBody: undefined,
   };
 }
 
@@ -661,6 +774,12 @@ export const MessageData = {
     }
     if (message.usernameProofBody !== undefined) {
       UserNameProof.encode(message.usernameProofBody, writer.uint32(122).fork()).ldelim();
+    }
+    if (message.mediaDataAddBody !== undefined) {
+      MediaDataAddBody.encode(message.mediaDataAddBody, writer.uint32(130).fork()).ldelim();
+    }
+    if (message.mediaDataRemoveBody !== undefined) {
+      MediaDataRemoveBody.encode(message.mediaDataRemoveBody, writer.uint32(138).fork()).ldelim();
     }
     return writer;
   },
@@ -756,6 +875,20 @@ export const MessageData = {
 
           message.usernameProofBody = UserNameProof.decode(reader, reader.uint32());
           continue;
+        case 16:
+          if (tag != 130) {
+            break;
+          }
+
+          message.mediaDataAddBody = MediaDataAddBody.decode(reader, reader.uint32());
+          continue;
+        case 17:
+          if (tag != 138) {
+            break;
+          }
+
+          message.mediaDataRemoveBody = MediaDataRemoveBody.decode(reader, reader.uint32());
+          continue;
       }
       if ((tag & 7) == 4 || tag == 0) {
         break;
@@ -783,6 +916,10 @@ export const MessageData = {
       userDataBody: isSet(object.userDataBody) ? UserDataBody.fromJSON(object.userDataBody) : undefined,
       linkBody: isSet(object.linkBody) ? LinkBody.fromJSON(object.linkBody) : undefined,
       usernameProofBody: isSet(object.usernameProofBody) ? UserNameProof.fromJSON(object.usernameProofBody) : undefined,
+      mediaDataAddBody: isSet(object.mediaDataAddBody) ? MediaDataAddBody.fromJSON(object.mediaDataAddBody) : undefined,
+      mediaDataRemoveBody: isSet(object.mediaDataRemoveBody)
+        ? MediaDataRemoveBody.fromJSON(object.mediaDataRemoveBody)
+        : undefined,
     };
   },
 
@@ -810,6 +947,11 @@ export const MessageData = {
     message.linkBody !== undefined && (obj.linkBody = message.linkBody ? LinkBody.toJSON(message.linkBody) : undefined);
     message.usernameProofBody !== undefined &&
       (obj.usernameProofBody = message.usernameProofBody ? UserNameProof.toJSON(message.usernameProofBody) : undefined);
+    message.mediaDataAddBody !== undefined &&
+      (obj.mediaDataAddBody = message.mediaDataAddBody ? MediaDataAddBody.toJSON(message.mediaDataAddBody) : undefined);
+    message.mediaDataRemoveBody !== undefined && (obj.mediaDataRemoveBody = message.mediaDataRemoveBody
+      ? MediaDataRemoveBody.toJSON(message.mediaDataRemoveBody)
+      : undefined);
     return obj;
   },
 
@@ -849,6 +991,218 @@ export const MessageData = {
     message.usernameProofBody = (object.usernameProofBody !== undefined && object.usernameProofBody !== null)
       ? UserNameProof.fromPartial(object.usernameProofBody)
       : undefined;
+    message.mediaDataAddBody = (object.mediaDataAddBody !== undefined && object.mediaDataAddBody !== null)
+      ? MediaDataAddBody.fromPartial(object.mediaDataAddBody)
+      : undefined;
+    message.mediaDataRemoveBody = (object.mediaDataRemoveBody !== undefined && object.mediaDataRemoveBody !== null)
+      ? MediaDataRemoveBody.fromPartial(object.mediaDataRemoveBody)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseMediaDataRemoveBody(): MediaDataRemoveBody {
+  return { targetHash: new Uint8Array() };
+}
+
+export const MediaDataRemoveBody = {
+  encode(message: MediaDataRemoveBody, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.targetHash.length !== 0) {
+      writer.uint32(10).bytes(message.targetHash);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): MediaDataRemoveBody {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMediaDataRemoveBody();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag != 10) {
+            break;
+          }
+
+          message.targetHash = reader.bytes();
+          continue;
+      }
+      if ((tag & 7) == 4 || tag == 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): MediaDataRemoveBody {
+    return { targetHash: isSet(object.targetHash) ? bytesFromBase64(object.targetHash) : new Uint8Array() };
+  },
+
+  toJSON(message: MediaDataRemoveBody): unknown {
+    const obj: any = {};
+    message.targetHash !== undefined &&
+      (obj.targetHash = base64FromBytes(message.targetHash !== undefined ? message.targetHash : new Uint8Array()));
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<MediaDataRemoveBody>, I>>(base?: I): MediaDataRemoveBody {
+    return MediaDataRemoveBody.fromPartial(base ?? {});
+  },
+
+  fromPartial<I extends Exact<DeepPartial<MediaDataRemoveBody>, I>>(object: I): MediaDataRemoveBody {
+    const message = createBaseMediaDataRemoveBody();
+    message.targetHash = object.targetHash ?? new Uint8Array();
+    return message;
+  },
+};
+
+function createBaseMediaDataAddBody(): MediaDataAddBody {
+  return { type: 0, emailAddress: "", activity: 0, metadata: "", userFid: undefined, sid: 0, title: "", date: 0 };
+}
+
+export const MediaDataAddBody = {
+  encode(message: MediaDataAddBody, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.type !== 0) {
+      writer.uint32(8).int32(message.type);
+    }
+    if (message.emailAddress !== "") {
+      writer.uint32(18).string(message.emailAddress);
+    }
+    if (message.activity !== 0) {
+      writer.uint32(24).int32(message.activity);
+    }
+    if (message.metadata !== "") {
+      writer.uint32(34).string(message.metadata);
+    }
+    if (message.userFid !== undefined) {
+      writer.uint32(40).uint64(message.userFid);
+    }
+    if (message.sid !== 0) {
+      writer.uint32(48).uint64(message.sid);
+    }
+    if (message.title !== "") {
+      writer.uint32(58).string(message.title);
+    }
+    if (message.date !== 0) {
+      writer.uint32(64).uint64(message.date);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): MediaDataAddBody {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMediaDataAddBody();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag != 8) {
+            break;
+          }
+
+          message.type = reader.int32() as any;
+          continue;
+        case 2:
+          if (tag != 18) {
+            break;
+          }
+
+          message.emailAddress = reader.string();
+          continue;
+        case 3:
+          if (tag != 24) {
+            break;
+          }
+
+          message.activity = reader.int32() as any;
+          continue;
+        case 4:
+          if (tag != 34) {
+            break;
+          }
+
+          message.metadata = reader.string();
+          continue;
+        case 5:
+          if (tag != 40) {
+            break;
+          }
+
+          message.userFid = longToNumber(reader.uint64() as Long);
+          continue;
+        case 6:
+          if (tag != 48) {
+            break;
+          }
+
+          message.sid = longToNumber(reader.uint64() as Long);
+          continue;
+        case 7:
+          if (tag != 58) {
+            break;
+          }
+
+          message.title = reader.string();
+          continue;
+        case 8:
+          if (tag != 64) {
+            break;
+          }
+
+          message.date = longToNumber(reader.uint64() as Long);
+          continue;
+      }
+      if ((tag & 7) == 4 || tag == 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): MediaDataAddBody {
+    return {
+      type: isSet(object.type) ? mediaDataTypeFromJSON(object.type) : 0,
+      emailAddress: isSet(object.emailAddress) ? String(object.emailAddress) : "",
+      activity: isSet(object.activity) ? mediaDataActivityTypeFromJSON(object.activity) : 0,
+      metadata: isSet(object.metadata) ? String(object.metadata) : "",
+      userFid: isSet(object.userFid) ? Number(object.userFid) : undefined,
+      sid: isSet(object.sid) ? Number(object.sid) : 0,
+      title: isSet(object.title) ? String(object.title) : "",
+      date: isSet(object.date) ? Number(object.date) : 0,
+    };
+  },
+
+  toJSON(message: MediaDataAddBody): unknown {
+    const obj: any = {};
+    message.type !== undefined && (obj.type = mediaDataTypeToJSON(message.type));
+    message.emailAddress !== undefined && (obj.emailAddress = message.emailAddress);
+    message.activity !== undefined && (obj.activity = mediaDataActivityTypeToJSON(message.activity));
+    message.metadata !== undefined && (obj.metadata = message.metadata);
+    message.userFid !== undefined && (obj.userFid = Math.round(message.userFid));
+    message.sid !== undefined && (obj.sid = Math.round(message.sid));
+    message.title !== undefined && (obj.title = message.title);
+    message.date !== undefined && (obj.date = Math.round(message.date));
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<MediaDataAddBody>, I>>(base?: I): MediaDataAddBody {
+    return MediaDataAddBody.fromPartial(base ?? {});
+  },
+
+  fromPartial<I extends Exact<DeepPartial<MediaDataAddBody>, I>>(object: I): MediaDataAddBody {
+    const message = createBaseMediaDataAddBody();
+    message.type = object.type ?? 0;
+    message.emailAddress = object.emailAddress ?? "";
+    message.activity = object.activity ?? 0;
+    message.metadata = object.metadata ?? "";
+    message.userFid = object.userFid ?? undefined;
+    message.sid = object.sid ?? 0;
+    message.title = object.title ?? "";
+    message.date = object.date ?? 0;
     return message;
   },
 };

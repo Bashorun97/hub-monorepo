@@ -15,6 +15,7 @@ message Message {
   optional bytes data_bytes = 7; // MessageData serialized to bytes if using protobuf serialization other than ts-proto
 }
 
+
   /**
  * A MessageData object contains properties common to all messages and wraps a body object which
  * contains properties specific to the MessageType.
@@ -35,6 +36,8 @@ message MessageData {
     // SignerRemoveBody signer_remove_body = 13; // Deprecated
     LinkBody link_body = 14;
     UserNameProof username_proof_body = 15;
+    MediaDataAddBody media_data_add_body = 16;
+    MediaDataRemoveBody media_data_remove_body = 17;
   } // Properties specific to the MessageType
 }
 
@@ -67,6 +70,8 @@ enum MessageType {
 //  MESSAGE_TYPE_SIGNER_REMOVE = 10; // Remove an Ed25519 key pair that signs messages for a user
   MESSAGE_TYPE_USER_DATA_ADD = 11; // Add metadata about a user
   MESSAGE_TYPE_USERNAME_PROOF = 12; // Add or replace a username proof
+  MESSAGE_TYPE_MEDIA_DATA_ADD = 13; // Add new media data
+  MESSAGE_TYPE_MEDIA_DATA_REMOVE = 14; // Remove a media data for a user
 }
 
 /** Farcaster network the message is intended for */
@@ -75,6 +80,39 @@ enum FarcasterNetwork {
   FARCASTER_NETWORK_MAINNET = 1; // Public primary network
   FARCASTER_NETWORK_TESTNET = 2; // Public test network
   FARCASTER_NETWORK_DEVNET = 3; // Private test network
+}
+
+/** Removes media data owned by a user */
+message MediaDataRemoveBody {
+  bytes target_hash = 1;
+}
+
+
+/** Adds media platform about a user */
+message MediaDataAddBody {
+  MediaDataType type = 1;
+  string email_address = 2;
+  MediaDataActivityType activity = 3; // Type of activity
+  string metadata = 4;
+  oneof user {
+    uint64 user_fid = 5; // Farcaster ID of user
+  }
+  uint64 sid = 6; // Media data ID
+  string title = 7; // Media data title
+  uint64 date = 8; // Unix timestamp of activity
+}
+
+/** Type of Media platforms */
+enum MediaDataType {
+  MEDIA_DATA_TYPE_NONE = 0;
+  MEDIA_DATA_TYPE_NETFLIX = 1;
+  MEDIA_DATA_TYPE_PLAYSTATION = 2;
+}
+
+enum MediaDataActivityType {
+  MEDIA_DATA_WATCH = 0;
+  MEDIA_DATA_PLAY = 1;
+  MEDIA_DATA_FAVORITE = 2;
 }
 
 /** Adds metadata about a user */

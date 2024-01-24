@@ -23,6 +23,7 @@ export enum StoreType {
   USER_DATA = 4,
   VERIFICATIONS = 5,
   USERNAME_PROOFS = 6,
+  MEDIA_DATA = 7,
 }
 
 export function storeTypeFromJSON(object: any): StoreType {
@@ -48,6 +49,9 @@ export function storeTypeFromJSON(object: any): StoreType {
     case 6:
     case "STORE_TYPE_USERNAME_PROOFS":
       return StoreType.USERNAME_PROOFS;
+    case 7:
+    case "STORE_TYPE_MEDIA_DATA":
+      return StoreType.MEDIA_DATA;
     default:
       throw new tsProtoGlobalThis.Error("Unrecognized enum value " + object + " for enum StoreType");
   }
@@ -69,6 +73,8 @@ export function storeTypeToJSON(object: StoreType): string {
       return "STORE_TYPE_VERIFICATIONS";
     case StoreType.USERNAME_PROOFS:
       return "STORE_TYPE_USERNAME_PROOFS";
+    case StoreType.MEDIA_DATA:
+      return "STORE_TYPE_MEDIA_DATA";
     default:
       throw new tsProtoGlobalThis.Error("Unrecognized enum value " + object + " for enum StoreType");
   }
